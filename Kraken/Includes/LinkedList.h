@@ -1,5 +1,5 @@
 #pragma once
-
+#include <iostream>
 namespace Kraken {
 
 	/*
@@ -26,7 +26,7 @@ namespace Kraken {
 	private:
 		Node<T>* head; // The Starting element of the linked list
 		Node<T>* tail; // The Ending element of the linked list
-	
+
 	public:
 		// Initialising an empty linked list
 		LinkedList() : head(nullptr), tail(nullptr) {}
@@ -35,7 +35,7 @@ namespace Kraken {
 			Inserts a element with the passed in data to the front
 			of the linked list.
 		*/
-		void insert(T data)
+		void prepend(T data)
 		{
 			// Create the new element
 			Node<T>* temp = new Node<T>(data);
@@ -66,7 +66,7 @@ namespace Kraken {
 			Appends a element with the passed in data to the end
 			of the linked list.
 		*/
-		void append(T data) 
+		void append(T data)
 		{
 			// Create the new element
 			Node<T>* temp = new Node<T>(data);
@@ -97,7 +97,7 @@ namespace Kraken {
 			Removes a given element from the linked list and repairs
 			the broken links.
 		*/
-		void remove(T data) 
+		void remove(T data)
 		{
 			// If the list is empty do nothing
 			if (this->head == nullptr || this->tail == nullptr) return;
@@ -133,20 +133,203 @@ namespace Kraken {
 				return;
 			}
 
-			// Loop through the list to find the element to remove. The fix
-			// the broken links
-			Node<T>* current = this->head;
+			// Search the linked list from each end and narrow the search
+			// Searching: head -> data <- tail
+			Node<T>* current_front = this->head->next;
+			Node<T>* current_back = this->tail->prev;
 			do
 			{
-				if (current->next->data == data) {
-					// Fix links which removes the element from the list
-					current->next = current->next->next;
-					current->next->next->prev = current;
+				// Check if data is in the list
+				if (current_front->data == data) {
+					current_front->prev->next = current_front->next;
+					current_front->next->prev = current_front->prev;
 					return;
 				}
-				current = current->next;
-			} while (current != this->tail->next);
+				if (current_back->data == data) {
+					current_back->prev->next = current_back->next;
+					current_back->next->prev = current_back->prev;
+					return;
+				}
+
+				// Iterate
+				current_front = current_front->next;
+				current_back = current_back->prev;
+
+				// Just incase it gets out of order
+				if (current_front->prev == current_back || current_back->next == current_front) break;
+			} while (current_front != current_back);
 		}
+
+		bool contains(T data) {
+			// If the list is empty then it's not in the list
+			if (this->head == nullptr || this->tail == nullptr) return false;
+
+			// Check head and tail
+			if (this->head->data == data) return true;
+			if (this->tail->data == data) return true;
+
+			// Search the linked list from each end and narrow the search
+			// Searching: head -> data <- tail
+			Node<T>* current_front = this->head->next;
+			Node<T>* current_back = this->tail->prev;
+			do
+			{
+				// Check if data is in the list
+				if (current_front->data == data) return true;
+				if (current_back->data == data) return true;
+
+				// Iterate
+				current_front = current_front->next;
+				current_back = current_back->prev;
+
+				// Just incase it gets out of order
+				if (current_front->prev == current_back || current_back->next == current_front) break;
+			} while (current_front != current_back);
+			// Doens't contain data
+			return false;
+		}
+
+		void insert_after(T key, T data) {
+			// If the list is empty then it's not in the list
+			if (this->head == nullptr || this->tail == nullptr)
+			{
+				this->append(data);
+				return;
+			}
+
+			// Create the new element
+			Node<T>* temp = new Node<T>(data);
+
+			// If key is head
+			if (this->head->data == key) {
+				temp->next = this->head->next;
+				temp->prev = this->head;
+
+				this->head->next->prev = temp;
+				this->head->next = temp;
+				return;
+			}
+
+			// If key is tail
+			if (this->head->data == key) {
+				this->append(data);
+				return;
+			}
+
+			// Searching: head -> data <- tail
+			Node<T>* current_front = this->head->next;
+			Node<T>* current_back = this->tail->prev;
+			do
+			{
+				// Check if data is in the list
+				if (current_front->data == key) {
+					temp->next = current_front->next;
+					temp->prev = current_front;
+
+					current_front->next->prev = temp;
+					current_front->next = temp;
+					return;
+				}
+				if (current_back->data == key) {
+					temp->next = current_back->next;
+					temp->prev = current_back;
+
+					current_back->next->prev = temp;
+					current_back->next = temp;
+					return;
+				}
+
+				// Iterate
+				current_front = current_front->next;
+				current_back = current_back->prev;
+
+				// Just incase it gets out of order
+				if (current_front->prev == current_back || current_back->next == current_front) break;
+			} while (current_front != current_back);
+
+			// Key isn't in linked list
+			return;
+		}
+
+		void insert_before(T key, T data) {
+			// If the list is empty then it's not in the list
+			if (this->head == nullptr || this->tail == nullptr)
+			{
+				this->prepend(data);
+				return;
+			}
+
+			// Create the new element
+			Node<T>* temp = new Node<T>(data);
+
+			// If key is head
+			if (this->head->data == key) {
+				this->prepend(data);
+				return;
+			}
+
+			// If key is tail
+			if (this->head->data == key) {
+				temp->next = this->head;
+				temp->prev = this->tail;
+
+				this->head->prev = temp;
+				this->tail->next = temp;
+				return;
+			}
+
+			// Searching: head -> data <- tail
+			Node<T>* current_front = this->head->next;
+			Node<T>* current_back = this->tail->prev;
+			do
+			{
+				// Check if data is in the list
+				if (current_front->data == key) {
+					temp->next = current_front;
+					temp->prev = current_front->prev;
+
+					current_front->prev = temp;
+					current_front->prev->next = temp;
+					return;
+				}
+				if (current_back->data == key) {
+					temp->next = current_back;
+					temp->prev = current_back->prev;
+
+					current_back->prev = temp;
+					current_back->prev->next = temp;
+					return;
+				}
+
+				// Iterate
+				current_front = current_front->next;
+				current_back = current_back->prev;
+
+				// Just incase it gets out of order
+				if (current_front->prev == current_back || current_back->next == current_front) break;
+			} while (current_front != current_back);
+
+			// Key isn't in linked list
+			return;
+		}
+
+#ifdef KRAKEN_DEBUG
+#include <iostream>
+		void display_debug() {
+			if (this->head == nullptr) {
+				std::cout << "Linked List is Empty" << std::endl;
+				return;
+			}
+
+			Node<T>* current = this->head;
+			while (current != this->tail)
+			{
+				std::cout << current->data << " -> ";
+				current = current->next;
+			}
+			std::cout << this->tail->data << std::endl;
+		}
+#endif
 	};
 
 }
