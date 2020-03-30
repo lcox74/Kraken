@@ -1,5 +1,5 @@
 #pragma once
-#include <iostream>
+
 namespace Kraken {
 
 	/*
@@ -17,19 +17,18 @@ namespace Kraken {
 	/*
 		A Bi-directional linear collection of data elements,
 		each element points to the next and previous element
-		therefore there is no order. This Linked list also 
-		cycles around.
+		therefore there is no order. 
 	*/
 	template <class T>
 	class LinkedList
 	{
 	private:
-		Node<T>* head; // The Starting element of the linked list
-		Node<T>* tail; // The Ending element of the linked list
+		Node<T>* head_node; // The Starting element of the linked list
+		Node<T>* tail_node; // The Ending element of the linked list
 
 	public:
 		// Initialising an empty linked list
-		LinkedList() : head(nullptr), tail(nullptr) {}
+		LinkedList() : head_node(nullptr), tail_node(nullptr) {}
 
 		/*
 			Inserts a element with the passed in data to the front
@@ -41,24 +40,19 @@ namespace Kraken {
 			Node<T>* temp = new Node<T>(data);
 
 			// Check if the linked list is empty
-			if (this->head == nullptr) {
-				temp->next = temp;
-				temp->prev = temp;
-
-				this->head = temp;
-				this->tail = temp;
+			if (this->head_node == nullptr) {
+				this->head_node = temp;
+				this->tail_node = temp;
 			}
 			else {
-				// Set the new element as reference as the new Head
-				this->head->prev = temp;
-				this->tail->next = temp;
+				// Set the new element as reference as the new head_node
+				this->head_node->prev = temp;
 
 				// Set the links of the new element
-				temp->next = this->head;
-				temp->prev = this->tail;
+				temp->next = this->head_node;
 
-				// Set the head as the new element
-				this->head = temp;
+				// Set the head_node as the new element
+				this->head_node = temp;
 			}
 		}
 
@@ -72,24 +66,19 @@ namespace Kraken {
 			Node<T>* temp = new Node<T>(data);
 
 			// Check if the linked list is empty
-			if (this->head == nullptr) {
-				temp->next = temp;
-				temp->prev = temp;
-
-				this->head = temp;
-				this->tail = temp;
+			if (this->head_node == nullptr) {
+				this->head_node = temp;
+				this->tail_node = temp;
 			}
 			else {
-				// Set the new element as reference as the new Tail
-				this->tail->next = temp;
-				this->head->prev = temp;
+				// Set the new element as reference as the new tail_node
+				this->tail_node->next = temp;
 
 				// Set the links of the new element
-				temp->next = this->head;
-				temp->prev = this->tail;
+				temp->prev = this->tail_node;
 
-				// Set the tail as the new element
-				this->tail = temp;
+				// Set the tail_node as the new element
+				this->tail_node = temp;
 			}
 		}
 
@@ -100,43 +89,41 @@ namespace Kraken {
 		void remove(T data)
 		{
 			// If the list is empty do nothing
-			if (this->head == nullptr || this->tail == nullptr) return;
+			if (this->head_node == nullptr || this->tail_node == nullptr) return;
 
 			// If there is only one element in the list, empty the list
-			if (this->head->data == data && this->head == this->tail) {
-				this->head = nullptr;
-				this->tail = nullptr;
+			if (this->head_node->data == data && this->head_node == this->tail_node) {
+				this->head_node = nullptr;
+				this->tail_node = nullptr;
 				return;
 			}
 
-			// If the element to remove is the head, set the head's next
-			// element to the new head and repair links.
-			if (this->head->data == data) {
+			// If the element to remove is the head_node, set the head_node's next
+			// element to the new head_node and repair links.
+			if (this->head_node->data == data) {
 				// Repair links
-				this->tail->next = this->head->next;
-				this->head->next->prev = this->tail;
+				this->head_node->next->prev = nullptr;
 
-				// Set new head
-				this->head = this->head->next;
+				// Set new head_node
+				this->head_node = this->head_node->next;
 				return;
 			}
 
-			// If the element to remove is the tail, set the tail's previous
-			// element to the new tail and repair links.
-			if (this->tail->data == data) {
+			// If the element to remove is the tail_node, set the tail_node's previous
+			// element to the new tail_node and repair links.
+			if (this->tail_node->data == data) {
 				// Repair links
-				this->head->prev = this->tail->prev;
-				this->tail->prev->next = this->head;
+				this->tail_node->prev->next = nullptr;
 
-				// Set new head
-				this->tail = this->tail->prev;
+				// Set new head_node
+				this->tail_node = this->tail_node->prev;
 				return;
 			}
 
 			// Search the linked list from each end and narrow the search
-			// Searching: head -> data <- tail
-			Node<T>* current_front = this->head->next;
-			Node<T>* current_back = this->tail->prev;
+			// Searching: head_node -> data <- tail_node
+			Node<T>* current_front = this->head_node->next;
+			Node<T>* current_back = this->tail_node->prev;
 			do
 			{
 				// Check if data is in the list
@@ -156,22 +143,23 @@ namespace Kraken {
 				current_back = current_back->prev;
 
 				// Just incase it gets out of order
+				if (current_front == nullptr || current_back == nullptr) break;
 				if (current_front->prev == current_back || current_back->next == current_front) break;
 			} while (current_front != current_back);
 		}
 
 		bool contains(T data) {
 			// If the list is empty then it's not in the list
-			if (this->head == nullptr || this->tail == nullptr) return false;
+			if (this->head_node == nullptr || this->tail_node == nullptr) return false;
 
-			// Check head and tail
-			if (this->head->data == data) return true;
-			if (this->tail->data == data) return true;
+			// Check head_node and tail_node
+			if (this->head_node->data == data) return true;
+			if (this->tail_node->data == data) return true;
 
 			// Search the linked list from each end and narrow the search
-			// Searching: head -> data <- tail
-			Node<T>* current_front = this->head->next;
-			Node<T>* current_back = this->tail->prev;
+			// Searching: head_node -> data <- tail_node
+			Node<T>* current_front = this->head_node->next;
+			Node<T>* current_back = this->tail_node->prev;
 			do
 			{
 				// Check if data is in the list
@@ -183,6 +171,7 @@ namespace Kraken {
 				current_back = current_back->prev;
 
 				// Just incase it gets out of order
+				if (current_front == nullptr || current_back == nullptr) break;
 				if (current_front->prev == current_back || current_back->next == current_front) break;
 			} while (current_front != current_back);
 			// Doens't contain data
@@ -191,7 +180,7 @@ namespace Kraken {
 
 		void insert_after(T key, T data) {
 			// If the list is empty then it's not in the list
-			if (this->head == nullptr || this->tail == nullptr)
+			if (this->head_node == nullptr || this->tail_node == nullptr)
 			{
 				this->append(data);
 				return;
@@ -200,25 +189,25 @@ namespace Kraken {
 			// Create the new element
 			Node<T>* temp = new Node<T>(data);
 
-			// If key is head
-			if (this->head->data == key) {
-				temp->next = this->head->next;
-				temp->prev = this->head;
+			// If key is head_node
+			if (this->head_node->data == key) {
+				temp->next = this->head_node->next;
+				temp->prev = this->head_node;
 
-				this->head->next->prev = temp;
-				this->head->next = temp;
+				this->head_node->next->prev = temp;
+				this->head_node->next = temp;
 				return;
 			}
 
-			// If key is tail
-			if (this->head->data == key) {
+			// If key is tail_node
+			if (this->head_node->data == key) {
 				this->append(data);
 				return;
 			}
 
-			// Searching: head -> data <- tail
-			Node<T>* current_front = this->head->next;
-			Node<T>* current_back = this->tail->prev;
+			// Searching: head_node -> data <- tail_node
+			Node<T>* current_front = this->head_node->next;
+			Node<T>* current_back = this->tail_node->prev;
 			do
 			{
 				// Check if data is in the list
@@ -244,6 +233,7 @@ namespace Kraken {
 				current_back = current_back->prev;
 
 				// Just incase it gets out of order
+				if (current_front == nullptr || current_back == nullptr) break;
 				if (current_front->prev == current_back || current_back->next == current_front) break;
 			} while (current_front != current_back);
 
@@ -253,7 +243,7 @@ namespace Kraken {
 
 		void insert_before(T key, T data) {
 			// If the list is empty then it's not in the list
-			if (this->head == nullptr || this->tail == nullptr)
+			if (this->head_node == nullptr || this->tail_node == nullptr)
 			{
 				this->prepend(data);
 				return;
@@ -262,25 +252,23 @@ namespace Kraken {
 			// Create the new element
 			Node<T>* temp = new Node<T>(data);
 
-			// If key is head
-			if (this->head->data == key) {
+			// If key is head_node
+			if (this->head_node->data == key) {
 				this->prepend(data);
 				return;
 			}
 
-			// If key is tail
-			if (this->head->data == key) {
-				temp->next = this->head;
-				temp->prev = this->tail;
+			// If key is tail_node
+			if (this->head_node->data == key) {
+				temp->next = this->head_node;
 
-				this->head->prev = temp;
-				this->tail->next = temp;
+				this->head_node->prev = temp;
 				return;
 			}
 
-			// Searching: head -> data <- tail
-			Node<T>* current_front = this->head->next;
-			Node<T>* current_back = this->tail->prev;
+			// Searching: head_node -> data <- tail_node
+			Node<T>* current_front = this->head_node->next;
+			Node<T>* current_back = this->tail_node->prev;
 			do
 			{
 				// Check if data is in the list
@@ -306,6 +294,7 @@ namespace Kraken {
 				current_back = current_back->prev;
 
 				// Just incase it gets out of order
+				if (current_front == nullptr || current_back == nullptr) break;
 				if (current_front->prev == current_back || current_back->next == current_front) break;
 			} while (current_front != current_back);
 
@@ -316,20 +305,112 @@ namespace Kraken {
 #ifdef KRAKEN_DEBUG
 #include <iostream>
 		void display_debug() {
-			if (this->head == nullptr) {
+			if (this->head_node == nullptr) {
 				std::cout << "Linked List is Empty" << std::endl;
 				return;
 			}
 
-			Node<T>* current = this->head;
-			while (current != this->tail)
+			Node<T>* current = this->head_node;
+			while (current != this->tail_node)
 			{
 				std::cout << current->data << " -> ";
 				current = current->next;
 			}
-			std::cout << this->tail->data << std::endl;
+			std::cout << this->tail_node->data << std::endl;
 		}
 #endif
-	};
+		/*
+			The iterator will allow forward and reverse iteration
+			through a linked list.
+		*/
+		class iterator
+		{
+		public:
+			iterator() : current(nullptr) { }
+			iterator(Node<T>* ptr) : current(ptr) { }
 
+			// Set iterator
+			iterator operator=(const iterator& other) 
+			{ 
+				this->current = other.current;
+				return *this; 
+			}
+
+			// Increment post and pre
+			iterator operator++() 
+			{ 
+				this->current = this->current->next;
+				return *this; 
+			}
+			iterator operator++(int x) 
+			{
+				iterator i = *this;
+				this->current = this->current->next;
+				return i;
+			}
+
+			// Decrement post and pre
+			iterator operator--() 
+			{ 
+				this->current = this->current->prev;
+				return *this; 
+			}
+			iterator operator--(int x) 
+			{ 
+				iterator i = *this; 
+				this->current = this->current->prev;
+				return i;
+			}
+
+			// Getting data from iterator
+			const T& operator*() { return this->current->data; }
+			const Node<T>* operator->() { return this->current; }
+
+			// Comparisons
+			const bool operator==(const iterator& rhs) { return this->current == rhs.current; }
+			const bool operator!=(const iterator& rhs) { return this->current != rhs.current; }
+
+			// Decement and Increment by a given step size
+			const iterator operator-(const int& step) 
+			{ 
+				for (int i = 0; i < step; i++) {
+					this->current = this->current->prev;
+				}
+				return this->current; 
+			}
+			const iterator operator+(const int& step)
+			{
+				for (int i = 0; i < step; i++) {
+					this->current = this->current->next;
+				}
+				return this->current;
+			}
+
+			void remove()
+			{
+				if (this->current == nullptr) return;
+				if (this->current->next == nullptr && this->current->prev == nullptr) return;
+				
+				if (this->current->next == nullptr) {
+					this->current->prev->next = nullptr;
+					return;
+				}
+				if (this->current->prev == nullptr) {
+					this->current->next->prev = nullptr;
+					return;
+				}
+
+				this->current->next->prev = this->current->prev;
+				this->current->prev->next = this->current->next;
+			}
+
+		private:
+			Node<T>* current;
+		};
+
+		// Begin and end of list for iterating
+		iterator begin() { return iterator(this->head_node); }
+		iterator end() { return iterator(this->tail_node->next); }
+		iterator tail() { return iterator(this->tail_node); }
+	};	
 }

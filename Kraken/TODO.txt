@@ -1,11 +1,5 @@
 
 
-Linked Lists:
-- Iterator
-	- Get Next
-	- Get Previous
-	- Remove
-
 Hash Map
 Tree
 Graph
